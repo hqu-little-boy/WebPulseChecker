@@ -13,11 +13,11 @@ int main()
                   [&checker]() {
                       if (checker.CheckConnection())
                       {
-                          std::println(std::cout, "网络正常");
+                          std::cout << "网络正常" << std::endl;
                       }
                       else
                       {
-                          std::println(std::cout, "网络异常");
+                          std::cout << "网络异常" << std::endl;
                       }
                   });
     timer.Start();
