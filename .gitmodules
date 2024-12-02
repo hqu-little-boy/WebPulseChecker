@@ -1,0 +1,6 @@
+[submodule "3rd/spdlog"]
+	path = 3rd/spdlog
+	url = https://github.com/gabime/spdlog.git
+[submodule "3rd/cryptopp-cmake"]
+	path = 3rd/cryptopp-cmake
+	url = https://github.com/abdes/cryptopp-cmake.git

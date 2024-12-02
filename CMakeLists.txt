@@ -4,13 +4,23 @@ project(WebPulseChecker)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 添加第三方库
 # 添加源文件
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 add_executable(WebPulseChecker ${SOURCES})
 # 添加头文件
-target_include_directories(WebPulseChecker PRIVATE 3rd)
 target_include_directories(WebPulseChecker PRIVATE include)
+# 添加第三方库
+target_include_directories(WebPulseChecker PRIVATE 3rd/cpp-httplib)
+# 添加日志库
+add_subdirectory(3rd/spdlog)
+target_include_directories(WebPulseChecker PRIVATE 3rd/spdlog/include)
+target_link_libraries(WebPulseChecker PRIVATE spdlog::spdlog)
+# 添加cryptopp库
+add_subdirectory(3rd/cryptopp-cmake)
+target_link_libraries(WebPulseChecker PRIVATE cryptopp::cryptopp)
+# 添加OpenSSL库
+find_package(OpenSSL REQUIRED)
+target_link_libraries(WebPulseChecker PRIVATE OpenSSL::SSL)
 
 # 添加编译时的宏定义
 # 项目版本
@@ -34,7 +44,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-var-tracking")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize-address-use-after-scope")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=signed-integer-overflow")
-endif()
+endif ()
 # 添加错误检查
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -pedantic")
 # 添加编译选项
