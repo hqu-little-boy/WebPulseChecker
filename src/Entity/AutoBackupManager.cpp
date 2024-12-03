@@ -24,21 +24,21 @@ AutoBackupManager::AutoBackupManager(std::filesystem::path&& source,
       // m_fileExtension{extension},
       m_maxBackupSize{maxSize},
       m_checkInterval{interval},
-      m_networkChecker{"https://one.one.one.one"s}
+      m_networkChecker{"https://www.baidu.com"s}
 
 {
 }
 
 void AutoBackupManager::run() const
 {
-    // if (this->m_networkChecker.CheckConnection())
-    if (false)
+    if (this->m_networkChecker.CheckConnection())
+    // if (false)
     {
         std::this_thread::sleep_for(this->m_checkInterval);
     }
     else
     {
-        spdlog::info("网络异常，启用备份");
+        spdlog::warn("网络异常，启用备份");
         // 备份操作
         const auto startTime{std::chrono::system_clock::now()};
         const auto result{this->backupFiles()};
@@ -141,11 +141,37 @@ bool AutoBackupManager::backupFiles() const
         spdlog::error("获取文件列表失败");
         return false;
     }
-    auto       backedFilesTotalSize{AutoBackupManager::calculateTotalSize(backedFiles.value())};
-    const auto needBackupFile{sourceFiles.value().front()};
-    int        iCount = 0;
-    while (FileSize(backedFilesTotalSize + std::filesystem::file_size(needBackupFile)) >
-           this->m_maxBackupSize)
+
+    auto backedFilesTotalSize{AutoBackupManager::calculateTotalSize(backedFiles.value())};
+    // const auto needBackupFile{sourceFiles.value().front()};
+    // 备份文件是源文件夹中不存在备份文件夹中的最早的文件
+    auto                  bNeedBackup{false};
+    std::filesystem::path needBackupFile;
+    for (const auto& sourceFile : sourceFiles.value())
+    {
+        if (std::find(backedFiles.value().begin(),
+                      backedFiles.value().end(),
+                      this->m_backupFolder / sourceFile.filename()) == backedFiles.value().end())
+        {
+            needBackupFile = sourceFile;
+            bNeedBackup    = true;
+            break;
+        }
+    }
+
+    if (!bNeedBackup)
+    {
+        spdlog::info("没有需要备份的文件");
+        return true;
+    }
+
+    int iCount = 0;
+    // 检查备份文件夹大小和备份文件所在磁盘空间
+    while ((FileSize(backedFilesTotalSize + std::filesystem::file_size(needBackupFile)) >
+            this->m_maxBackupSize) ||
+           (std::filesystem::file_size(needBackupFile) > std::filesystem::space(
+                this->m_backupFolder).available)
+    )
     {
         // 删除最早的文件，并重新计算大小，直到小于最大限制
         iCount++;

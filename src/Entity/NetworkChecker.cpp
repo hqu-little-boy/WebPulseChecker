@@ -2,7 +2,10 @@
 // Created by zpf on 24-11-25.
 //
 #include "Entity/NetworkChecker.h"
+
+#define CPPHTTPLIB_OPENSSL_SUPPORT
 #include "httplib.h"
+
 #include "spdlog/spdlog.h"
 
 NetworkChecker::NetworkChecker(std::string_view url)

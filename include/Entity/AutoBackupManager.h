@@ -9,7 +9,6 @@
 #include <optional>
 #include <string>
 #include <thread>
-#include <vector>
 
 #include "FileSize.h"
 #include "NetworkChecker.h"
